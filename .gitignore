@@ -7,9 +7,9 @@ crash.log
 *.auto.tfvars
 override.tf
 override.tf.json
-*_override.tf
+*_override.tfvars
 *_override.tf.json
-
+terraform.tfvars
 # OS/IDE
 .DS_Store
 Thumbs.db
