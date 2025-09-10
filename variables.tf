@@ -1,3 +1,6 @@
+variable "domain_main" { default = "recruitai.kr" } # 호스티드 존
+variable "domain_app" { default = "app.recruitai.kr" }
+
 variable "region" {
   type    = string
   default = "ap-northeast-2"
@@ -12,6 +15,10 @@ variable "name" {
 variable "sd_namespace" {
   type    = string
   default = "recruitai.local"
+}
+variable "env" {
+  type    = string
+  default = "prod" # dev/stage/prod 중 택1
 }
 
 # Images (use the tags you already push to Docker Hub)

@@ -120,13 +120,6 @@ resource "aws_ecs_task_definition" "front" {
       environment = [
         { name = "NEXT_PUBLIC_API_URL", value = "/api" }
       ]
-      healthCheck = {
-        command     = ["CMD-SHELL", "wget -q --spider http://127.0.0.1:3000/ || exit 1"]
-        interval    = 30
-        timeout     = 5
-        retries     = 3
-        startPeriod = 30
-      }
     }
   ])
 }
@@ -166,7 +159,9 @@ resource "aws_ecs_task_definition" "backend" {
         { name = "EMOTION_SERVER_URL", value = "http://emotion-ai.${var.sd_namespace}:8000/analyze" },
         { name = "STT_SERVER_URL", value = "http://interview-ai.${var.sd_namespace}:8001/stt-ask" },
         { name = "FIRST_ASK_SERVER_URL", value = "http://interview-ai.${var.sd_namespace}:8001" },
-        { name = "TRACKING_SERVER_URL", value = "http://tracking-ai.${var.sd_namespace}:8003/tracking" }
+        { name = "TRACKING_SERVER_URL", value = "http://tracking-ai.${var.sd_namespace}:8003/tracking" },
+        { name = "S3_BUCKET", value = aws_s3_bucket.media.bucket },
+        { name = "AWS_REGION", value = var.region }
       ]
       healthCheck = {
         command     = ["CMD-SHELL", "wget -q --spider http://127.0.0.1:8080/actuator/health || wget -q --spider http://127.0.0.1:8080/ || exit 1"]
@@ -196,11 +191,14 @@ resource "aws_ecs_task_definition" "emotion" {
       portMappings     = [{ containerPort = 8000, hostPort = 8000 }]
       logConfiguration = { logDriver = "awslogs", options = local.log_opts }
       healthCheck = {
-        command     = ["CMD-SHELL", "wget -q --spider http://127.0.0.1:8000/ || exit 1"]
+        command = [
+          "CMD-SHELL",
+          "python -c 'import urllib.request,sys; sys.exit(0 if urllib.request.urlopen(\"http://127.0.0.1:8000/healthz\", timeout=2).status==200 else 1)' || python3 -c 'import urllib.request,sys; sys.exit(0 if urllib.request.urlopen(\"http://127.0.0.1:8000/healthz\", timeout=2).status==200 else 1)' || exit 1"
+        ]
         interval    = 30
         timeout     = 5
-        retries     = 3
-        startPeriod = 30
+        retries     = 5
+        startPeriod = 240
       }
     }
   ])
@@ -229,12 +227,16 @@ resource "aws_ecs_task_definition" "interview" {
         { name = "OPENAI_API_KEY", value = var.openai_api_key }
       ]
       healthCheck = {
-        command     = ["CMD-SHELL", "wget -q --spider http://127.0.0.1:8001/ || exit 1"]
+        command = [
+          "CMD-SHELL",
+          "python -c 'import urllib.request,sys; sys.exit(0 if urllib.request.urlopen(\"http://127.0.0.1:8001/healthz\", timeout=2).status==200 else 1)' || python3 -c 'import urllib.request,sys; sys.exit(0 if urllib.request.urlopen(\"http://127.0.0.1:8001/healthz\", timeout=2).status==200 else 1)' || exit 1"
+        ]
         interval    = 30
         timeout     = 5
-        retries     = 3
-        startPeriod = 30
+        retries     = 5
+        startPeriod = 240
       }
+
     }
   ])
 }
@@ -256,11 +258,14 @@ resource "aws_ecs_task_definition" "tracking" {
       portMappings     = [{ containerPort = 8003, hostPort = 8003 }]
       logConfiguration = { logDriver = "awslogs", options = local.log_opts }
       healthCheck = {
-        command     = ["CMD-SHELL", "wget -q --spider http://127.0.0.1:8003/ || exit 1"]
+        command = [
+          "CMD-SHELL",
+          "python -c 'import urllib.request,sys; sys.exit(0 if urllib.request.urlopen(\"http://127.0.0.1:8003/healthz\", timeout=2).status==200 else 1)' || python3 -c 'import urllib.request,sys; sys.exit(0 if urllib.request.urlopen(\"http://127.0.0.1:8003/healthz\", timeout=2).status==200 else 1)' || exit 1"
+        ]
         interval    = 30
         timeout     = 5
-        retries     = 3
-        startPeriod = 30
+        retries     = 5
+        startPeriod = 240
       }
     }
   ])
