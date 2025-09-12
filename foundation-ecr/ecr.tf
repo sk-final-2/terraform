@@ -6,6 +6,7 @@ locals {
     "emotion-ai",
     "interview-ai",
     "tracking-ai",
+    "evaluate-ai"
   ]
 }
 

@@ -1,10 +1,17 @@
 # Helper: container log options
 locals {
+  # 공통
   log_opts = {
     awslogs-group         = aws_cloudwatch_log_group.lg.name
     awslogs-region        = var.region
     awslogs-stream-prefix = "ecs"
+    awslogs-create-group  = "true" # ← 없으면 생성 실패할 수 있어 추가
   }
+
+  # Spring Boot(백엔드) 스택트레이스 줄바꿈 묶기
+  log_opts_java = merge(local.log_opts, {
+    "awslogs-multiline-pattern" = "^[0-9]{4}-[0-9]{2}-[0-9]{2}T"
+  })
 }
 
 # ===== Service Discovery services =====
@@ -139,7 +146,7 @@ resource "aws_ecs_task_definition" "backend" {
       image            = var.image_backend
       essential        = true
       portMappings     = [{ containerPort = 8080, hostPort = 8080 }]
-      logConfiguration = { logDriver = "awslogs", options = local.log_opts }
+      logConfiguration = { logDriver = "awslogs", options = local.log_opts_java }
       environment = [
         { name = "SPRING_PROFILES_ACTIVE", value = "prod" },
         { name = "SPRING_DATASOURCE_URL", value = "jdbc:mariadb://${aws_db_instance.mariadb.address}:3306/recruit?useUnicode=true&characterEncoding=utf8&connectionCollation=utf8mb4_unicode_ci" },
@@ -160,6 +167,7 @@ resource "aws_ecs_task_definition" "backend" {
         { name = "STT_SERVER_URL", value = "http://interview-ai.${var.sd_namespace}:8001/stt-ask" },
         { name = "FIRST_ASK_SERVER_URL", value = "http://interview-ai.${var.sd_namespace}:8001" },
         { name = "TRACKING_SERVER_URL", value = "http://tracking-ai.${var.sd_namespace}:8003/tracking" },
+        { name = "EVALUATE_SERVER_URL", value = "http://evaluate-ai.${var.sd_namespace}:8002/evaluate" },
         { name = "S3_BUCKET", value = aws_s3_bucket.media.bucket },
         { name = "AWS_REGION", value = var.region }
       ]

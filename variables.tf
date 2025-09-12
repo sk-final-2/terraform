@@ -46,6 +46,20 @@ variable "image_tracking" {
   type    = string
   default = "804540872991.dkr.ecr.ap-northeast-2.amazonaws.com/recruitai/tracking-ai:latest"
 }
+variable "image_evaluate" {
+  type    = string
+  default = "804540872991.dkr.ecr.ap-northeast-2.amazonaws.com/recruitai/evaluate-ai:latest"
+}
+
+variable "llm_instance_type" {
+  type    = string
+  default = "g4dn.xlarge"
+}
+
+variable "llm_root_volume_size" {
+  type    = number
+  default = 250
+}
 
 # Desired counts (min setup for testing)
 variable "desired_front" {

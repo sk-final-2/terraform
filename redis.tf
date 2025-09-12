@@ -15,4 +15,11 @@ resource "aws_elasticache_replication_group" "redis" {
   transit_encryption_enabled = false
   subnet_group_name          = aws_elasticache_subnet_group.redis.name
   security_group_ids         = [aws_security_group.redis.id]
+
+  log_delivery_configuration {
+    destination_type = "cloudwatch-logs"
+    destination      = aws_cloudwatch_log_group.redis_engine.name
+    log_format       = "json"
+    log_type         = "engine-log"
+  }
 }

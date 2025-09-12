@@ -24,4 +24,6 @@ resource "aws_db_instance" "mariadb" {
   backup_retention_period = 7
   apply_immediately       = true
   storage_encrypted       = true
+
+  enabled_cloudwatch_logs_exports = ["error", "general", "slowquery"]
 }
