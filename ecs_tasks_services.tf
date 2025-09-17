@@ -168,6 +168,7 @@ resource "aws_ecs_task_definition" "backend" {
         { name = "FIRST_ASK_SERVER_URL", value = "http://interview-ai.${var.sd_namespace}:8001" },
         { name = "TRACKING_SERVER_URL", value = "http://tracking-ai.${var.sd_namespace}:8003/tracking" },
         { name = "EVALUATE_SERVER_URL", value = "http://evaluate-ai.${var.sd_namespace}:8002/evaluate" },
+        { name = "AWS_S3_BUCKET", value = aws_s3_bucket.media.bucket },
         { name = "S3_BUCKET", value = aws_s3_bucket.media.bucket },
         { name = "AWS_REGION", value = var.region }
       ]

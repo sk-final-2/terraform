@@ -1,6 +1,6 @@
 resource "aws_s3_bucket" "media" {
   bucket        = "${var.name}-${var.env}-media"
-  force_destroy = true
+  force_destroy = false
   tags          = { Project = var.name, Env = var.env }
 }
 
